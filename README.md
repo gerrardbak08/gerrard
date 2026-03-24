@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 통합 업무공유플랫폼 — 구현 상태 점검
 
-## Getting Started
+총무관리부(총무관리팀/자산관리팀/안전보건팀) 통합 모니터링 + 타팀 확장형 플랫폼 기준으로,
+요청사항 기반 구현 상태를 아래처럼 정리합니다.
 
-First, run the development server:
+## 구현 상태 전체 현황
+
+### ✅ 완료 (코드 + DB 반영)
+
+- Bell 알림: `/api/notifications`, `use-notifications`, 드롭다운 패널, 기한초과·D-7·팀지연 유형
+- Department API: `departmentId` 기반 집계, 같은 부서 팀 자동 집계, 인원수 포함
+- 부서 현황 페이지: 요약 카드(팀/인원/전체업무/완료/초과), 팀 카드 인원 표시
+- Task category: `category` 컬럼 추가(기본값 일반업무), 생성/수정 폼 분류 선택 UI, 목록 배지 표시
+- 대시보드 모니터링: 30초 자동 폴링 + 수동 새로고침
+
+### ⚠️ 구현 미흡 (틀은 있으나 실효성 부족)
+
+1. 부서 현황 — 팀 연결
+   - 문제: DB에 팀-부서 연결이 누락되면 "내가 속한 팀" 폴백으로 정확도 저하
+   - 보완: 팀 마스터 데이터 필수화 + 연결 누락 진단 배치
+
+2. Task 카테고리 필터
+   - 문제: 배지만 표시되고 카테고리 필터 UI가 없음
+   - 보완: 목록/칸반/캘린더 공통 카테고리 필터 추가
+
+3. Bell 알림 — 법정의무
+   - 문제: 일반 Task dueDate 기준만 존재
+   - 보완: 법정의무 주기 전용 모델(예: D-30/D-7 자동 생성) 필요
+
+4. 칸반/캘린더 뷰
+   - 문제: 카테고리 필드가 뷰에 반영되지 않음
+   - 보완: 카드 배지/색상/스윔레인 반영
+
+### ❌ 미구현 (필수)
+
+- 법정의무 관리 모델(작업환경측정/건강검진/안전교육 주기 자동 생성)
+- 사고/아차사고 자체 보고(사업장 내부 기록형)
+- 안전교육 이수 관리(이수율/미이수 추적)
+- 팀 온보딩 UI(팀 생성/멤버 초대)
+- 보고서 내보내기(PDF/Excel)
+- 타팀용 사이드바 커스터마이징
+
+## 현재 페이지 반영 내용
+
+- 총무관리부 통합 모니터링 보드
+- 완료/미흡/미구현 3단계 상태 섹션
+- Task 카테고리 필터 UI(전체/위험성평가/안전점검/법정의무/안전교육/사고조치/일반업무)
+- 30초 폴링 타이머 바 + 수동 새로고침 버튼
+
+## 다음 단계 권장
+
+1. `legal_obligations` 테이블 및 주기 스케줄러 도입
+2. `incidents`, `incident_actions` 자체 사고 보고 모델 추가
+3. 교육 이수(`trainings`, `training_records`) 모델 추가
+4. 칸반/캘린더에 `category` 필드 완전 반영
+5. 부서/팀 온보딩 및 사이드바 권한별 노출 구성
+
+## 실행
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run lint
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
